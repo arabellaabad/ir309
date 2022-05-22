@@ -1,0 +1,52 @@
+---
+title: "Juicy Girls and Camptowns: Examining the Bond Between American Military Bases and Sex Trafficking - Preliminary Data Analysis"
+output: html_notebook
+---
+
+```{r}
+# Chart One - DOD line chart
+
+DOD_data <- data.frame(year=c(2016,2017,2018,2019,2020,2021),cases=c(41,63,141,65,160,108))
+
+ggplot(data=DOD_data, aes(x=year,y=cases,group=1)) + geom_line() + geom_point() + ggtitle("DOD Reported Human Trafficking Cases, 2016-2021") + xlab("Year") + ylab("Reported Trafficking Cases")
+```
+
+
+```{r}
+# Chart Two - Sex Trafficking Victims Exploited in Turkey
+
+global_trafficking <- read.csv("C:\\Users\\Arabella\\Downloads\\14042020_global_trafficking.csv")
+# duplicate data frame global_trafficking to make new data frame df
+df <- data.frame(global_trafficking)
+#filter df rows so that only isSexualExploit or isSexAndLabour is TRUE
+df <- filter(df,isSexualExploit == 1 | isSexAndLabour == 1)
+# filter df rows so that only rows with DE, TR, JP, KR appear
+df <- filter(df,CountryOfExploitation == "DE" | CountryOfExploitation == "TR" | CountryOfExploitation == "JP" | CountryOfExploitation == "KR")
+# remove unnecessary columns
+df <- select(df,-Datasource)
+df <- select(df, -starts_with("By.using.this.data"))
+# labels for chart
+TUR_data <- data.frame(df)
+TUR_data <- TUR_data %>%
+  select(gender,ageBroad,citizenship)
+TUR_data[TUR_data == 1] <- "Female"
+TUR_data[TUR_data == "MD"] <- "Moldova"
+TUR_data[TUR_data == "UA"] <- "Ukraine"
+TURlabels <- c("Moldova", "Ukraine")
+TURvalues <- c(23,67,95,12)
+
+ggplot(TUR_data, aes(x=citizenship, fill=ageBroad)) + geom_bar(position="stack") + ggtitle("Demographic Information of Sex Trafficking Victims Exploited in Turkey") + xlab("Citizenship of Victims") + ylab("Number of Victims") + labs(fill="Age Range") + scale_x_discrete(labels=TURlabels)
+```
+
+```{r}
+# Chart 3 - GDP of Turkey, Ukraine, and Moldova
+
+year <- c(2009,2010,2011,2012,2013,2014,2015,2016,2017)
+turkey <- c(649,777,839,881,958,939,864,870,859)
+moldova <- c(5.439422031,6.974960345,8.414360656,8.709165249,9.496684701,9.510219299,7.745231660,8.071480541,9.669759987)
+ukraine <- c(122,141,169,183,190,134,91.030959455,93.355993629,112)
+line_chart <- data.frame(year,turkey,moldova,ukraine)
+
+ggplot(data=line_chart, aes(x=year,group=1)) + geom_line(aes(x=year,y=turkey), color="black",lwd=1.0) + geom_line(aes(x=year,y=moldova),color="red",lwd=1.0) + geom_line(aes(x=year,y=ukraine),color="purple",lwd=1.0) + xlab("Year") + ylab("GDP (Trillions, USD)") + ggtitle("GDP of Turkey, Moldova, and Ukraine, 2009-2016") + scale_x_continuous(breaks=seq(2009,2017,by=1))
+```
+
